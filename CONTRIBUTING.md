@@ -104,7 +104,7 @@ CI will run unit test for the posted Pull Request in Linux environment. We can s
 
 ### 6. Resolve conflicts
 
-If your local branch conflicts with the latest main branch of "upstream", you'll need to resolove them. There are two ways to do this:
+If your local branch conflicts with the latest main branch of "upstream", you'll need to resolve them. There are two ways to do this:
 
 ```shell
 git fetch --all --prune
