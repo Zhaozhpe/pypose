@@ -41,7 +41,7 @@ class SAL(_Optimizer):
     '''
     Stochastic Augmented Lagrangian method for Constraint Optimization.
     '''
-    def __init__(self, model, inner_optimizer, inner_scheduler=None, penalty_factor=1, penalty_safeguard=1e5, \
+    def __init__(self, model, inner_scheduler=None, penalty_factor=1, penalty_safeguard=1e5, \
                        penalty_update_factor=2, object_decrease_tolerance=1e-6, violation_tolerance=1e-6, \
                        decrease_rate=0.9, min=1e-6, max=1e32, inner_iter=400):
         defaults = {**{'min':min, 'max':max}}
@@ -61,7 +61,7 @@ class SAL(_Optimizer):
         self.violation_tolerance = violation_tolerance
         self.object_decrease_tolerance = object_decrease_tolerance
         self.alm_model = _Unconstrained_Model(self.model, penalty_factor=penalty_factor)
-        self.optim = inner_optimizer
+        self.optim = inner_scheduler.optimizer
         self.scheduler = inner_scheduler
 
 
@@ -110,7 +110,6 @@ class SAL(_Optimizer):
     def log_generation(self, alm_model, violation, last_object_value, object_value):
         print('--------------------NEW-ALM-EPOCH-------------------')
         print('current_lambda: ', alm_model.lmd)
-        # print('parameters: ', alm_model.model.parameters())
         print('object_loss:', object_value)
         print('absolute violation:', torch.norm(violation))
         print("object_loss_decrease", torch.norm(last_object_value-object_value))

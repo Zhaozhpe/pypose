@@ -122,7 +122,6 @@ class AlmOptimExample:
         inner_optimizer = torch.optim.SGD(InnerNet.parameters(), lr=1e-2, momentum=0.9)
         inner_scheduler = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer, step_size=20, gamma=0.5)
         optimizer = SAL(model=InnerNet,
-                        inner_optimizer=inner_optimizer,
                         inner_scheduler=inner_scheduler,
                         object_decrease_tolerance=1e-7, inner_iter=300)
 
@@ -175,7 +174,7 @@ class AlmOptimExample:
         posnet = PoseInvConstrained(1).to(device)
         inner_optimizer = torch.optim.SGD(posnet.parameters(), lr=1e-2, momentum=0.9)
         inner_scheduler = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer, step_size=20, gamma=0.5)
-        optimizer = SAL(model=posnet, inner_optimizer=inner_optimizer, inner_scheduler=inner_scheduler, inner_iter=400, penalty_safeguard=1e3)
+        optimizer = SAL(model=posnet, inner_scheduler=inner_scheduler, inner_iter=400, penalty_safeguard=1e3)
 
         for idx in range(20):
             loss, lmd, = optimizer.step(input)

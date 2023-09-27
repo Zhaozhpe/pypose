@@ -33,7 +33,7 @@ class TestOptim:
         inner_opt = torch.optim.SGD(TensorNet.parameters(), lr=1e-2, momentum=0.9)
         inner_schd = torch.optim.lr_scheduler.StepLR(optimizer=inner_opt, step_size=20, gamma=0.5)
         # scheduler = pp.optim.scheduler.StopOnPlateau(optimizer, steps=10, patience=3, decreasing=1e-3, verbose=True)
-        optimizer = SAL(model=TensorNet, inner_optimizer=inner_opt, inner_scheduler=inner_schd, inner_iter=400, penalty_safeguard=1e3)
+        optimizer = SAL(model=TensorNet, inner_scheduler=inner_schd, inner_iter=400, penalty_safeguard=1e3)
 
         for idx in range(20):
             loss, lmd, = optimizer.step(input)
