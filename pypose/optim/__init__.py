@@ -4,3 +4,4 @@ from .optimizer import GaussNewton as GN
 from .optimizer import LevenbergMarquardt
 from .optimizer import LevenbergMarquardt as LM
 from .cnstopt import SAL
+from .admm import ADMMOptim

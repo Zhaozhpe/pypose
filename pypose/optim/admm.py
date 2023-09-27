@@ -1,29 +1,11 @@
 import torch
 from torch import nn
+from .scndopt import _Optimizer
 
-class ADMMModel(nn.Module):
-    def __init__(self, *dim) -> None:
-        super().__init__()
-        init = torch.randn(*dim)
-        self.x = torch.nn.Parameter(init.clone())
-        self.z = torch.nn.Parameter(init.clone())
-        self.u = torch.zeros_like(init).to(device)
-
-    def obj(self, inputs):
-        # Define your specific objective functions f(x) and g(z)
-        result = -self.x.prod() - self.z.prod()
-        return result
-    
-    def cnst(self, inputs):
-        # Define your specific constraints, Ax + Bz - c
-        violation = torch.square(torch.norm(self.x + self.z, p=2)) - 2
-        return violation.unsqueeze(0)
-    
-    def forward(self, inputs):
-        return self.obj(inputs), self.cnst(inputs)
-
-class ADMMOptim:
-    def __init__(self, model, inner_optimizer_x, inner_optimizer_z, rho=1.0, max_iter=20, tolerance=1e-6):
+class ADMMOptim(_Optimizer):
+    def __init__(self, model, inner_optimizer_x, inner_optimizer_z, rho=1.0, max_iter=20, tolerance=1e-6,min=1e-6, max=1e32):
+        defaults = {**{'min':min, 'max':max}}
+        super().__init__(model.parameters(), defaults=defaults)
         self.model = model
         self.inner_optimizer_x = inner_optimizer_x
         self.inner_optimizer_z = inner_optimizer_z
