@@ -1,5 +1,5 @@
 import torch
-from .optimizer import _Optimizer
+from .scndopt import _Optimizer
 
 
 class _Scheduler(object):
@@ -198,4 +198,64 @@ class StopOnPlateau(_Scheduler):
         '''
         while self.continual():
             loss = self.optimizer.step(input, target, weight)
+            self.step(loss)
+
+class CnstOptSchduler(_Scheduler):
+
+    def __init__(self, optimizer, steps, patience=5, decreasing=1e-3, verbose=False):
+        super().__init__(optimizer, steps, verbose)
+        self.decreasing = decreasing
+        self.patience, self.patience_count = patience, 0
+
+    def step(self, loss):
+        assert self.optimizer.loss is not None, \
+            'scheduler.step() should be called after optimizer.step()'
+
+        if self.verbose:
+            print('CnstOptSchduler (for objection) on step {} Loss {:.6e} --> Loss {:.6e} '\
+                  '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last_object_value,
+                  self.optimizer.object_value, (self.optimizer.last_object_value - self.optimizer.object_value) /\
+                  (self.optimizer.last_object_value + 1e-31)))
+            print('CnstOptSchduler (for violation) on step {} Loss {:.6e} --> Loss {:.6e} '\
+                  '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last_violation,
+                  self.optimizer.violation_norm, (self.optimizer.last_violation - self.optimizer.violation_norm) /\
+                  (self.optimizer.last_violation + 1e-31)))
+            print('CnstOptSchduler (for lagrangia) on step {} Loss {:.6e} --> Loss {:.6e} '\
+                  '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last,
+                  self.optimizer.loss, (self.optimizer.last - self.optimizer.loss) /\
+                  (self.optimizer.last + 1e-31)))
+            print('--------------------------------------------------------------------------------------------------------------')
+
+        self.steps = self.steps + 1
+
+        if self.optimizer.terminate == True:
+            self._continual = False
+            if self.verbose:
+                print("CnstOptSchduler: Optimal value found, Quiting..")
+
+        if self.steps >= self.max_steps:
+            self._continual = False
+            if self.verbose:
+                print("CnstOptSchduler: Maximum steps reached, Quiting..")
+
+        if (self.optimizer.last - self.optimizer.loss) < self.decreasing:
+            self.patience_count = self.patience_count + 1
+        else:
+            self.patience_count = 0
+
+        if self.patience_count >= self.patience:
+            self._continual = False
+            if self.verbose:
+                print("StopOnPlateau: Maximum patience steps reached, Quiting..")
+
+        if hasattr(self.optimizer, 'reject_count'):
+            if self.optimizer.reject_count > 0:
+                self._continual = False
+                if self.verbose:
+                    print("StopOnPlateau: Maximum rejected steps reached, Quiting..")
+
+    # @torch.no_grad()
+    def optimize(self, input, target=None, weight=None):
+        while self.continual():
+            loss = self.optimizer.step(input)
             self.step(loss)
