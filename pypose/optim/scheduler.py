@@ -226,16 +226,20 @@ class CnstOptSchduler(_Scheduler):
                   '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last_violation,
                   self.optimizer.violation_norm, (self.optimizer.last_violation - self.optimizer.violation_norm) /\
                   (self.optimizer.last_violation + 1e-31)))
-            print('CnstOptSchduler (for lagrangia) on step {} Loss {:.6e} --> Loss {:.6e} '\
-                  '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last,
-                  self.optimizer.loss, (self.optimizer.last - self.optimizer.loss) /\
-                  (self.optimizer.last + 1e-31)))
+            # print('CnstOptSchduler (for lagrangia) on step {} Loss {:.6e} --> Loss {:.6e} '\
+            #       '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last,
+            #       self.optimizer.loss, (self.optimizer.last - self.optimizer.loss) /\
+            #       (self.optimizer.last + 1e-31)))
             print('--------------------------------------------------------------------------------------------------------------')
 
         self.steps = self.steps + 1
 
-        if torch.norm(self.optimizer.last_object_value-self.optimizer.object_value) <= self.object_decrease_tolerance \
-                    and self.optimizer.violation_norm  <= self.violation_tolerance:
+        # if torch.norm(self.optimizer.last_object_value-self.optimizer.object_value) <= self.object_decrease_tolerance \
+        #             and self.optimizer.violation_norm  <= self.violation_tolerance:
+        #     self._continual = False
+        #     if self.verbose:
+        #         print("CnstOptSchduler: Optimal value found, Quiting..")
+        if self.optimizer.terminate == True:
             self._continual = False
             if self.verbose:
                 print("CnstOptSchduler: Optimal value found, Quiting..")
