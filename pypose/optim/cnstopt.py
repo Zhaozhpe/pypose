@@ -42,22 +42,16 @@ class SAL(_Optimizer):
     Stochastic Augmented Lagrangian method for Constraint Optimization.
     '''
     def __init__(self, model, inner_optimizer, penalty_factor=1, penalty_safeguard=1e5, \
-                       penalty_update_factor=2, decrease_rate=0.9, min=1e-6, max=1e32, inner_iter=400):
+                       penalty_update_factor=2, decrease_rate=0.9, min=1e-6, max=1e32):
         defaults = {**{'min':min, 'max':max}}
         super().__init__(model.parameters(), defaults=defaults)
-        #### choose your own optimizer for unconstrained opt.
-        ### Shared Augments
         self.model = model
-        # algorithm implemented
         self.decrease_rate = decrease_rate
         self.pf_rate =penalty_update_factor
         self.pf_safeguard = penalty_safeguard
         self.alm_model = _Unconstrained_Model(self.model, penalty_factor=penalty_factor)
-        # self.scheduler = inner_scheduler
         self.inner_iter = 0
         self.optim = inner_optimizer
-
-
 
     #### f(x) - y = loss_0, f(x) + C(x) - 0 - y
     def step(self, inputs=None):

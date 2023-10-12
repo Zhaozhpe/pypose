@@ -30,12 +30,11 @@ class TestOptim:
 
         input = None
         TensorNet = TensorModel(5).to(device)
-        inner_opt = torch.optim.SGD(TensorNet.parameters(), lr=1e-2, momentum=0.9)
         # inner_opt = torch.optim.Adam(TensorNet.parameters(), lr=1e-2)
+        inner_opt = torch.optim.SGD(TensorNet.parameters(), lr=1e-2, momentum=0.9)
         inner_schd = torch.optim.lr_scheduler.StepLR(optimizer=inner_opt, step_size=20, \
                                                      gamma=0.5, verbose=True)
         optimizer = SAL(model=TensorNet, inner_optimizer=inner_opt, penalty_safeguard=1e3)
-        # expose tolerance insert inner_scheduler=inner_schd
         scheduler = CnstOptSchduler(optimizer, steps=30, inner_scheduler=inner_schd, inner_iter=400, \
                                     object_decrease_tolerance=1e-6, violation_tolerance=1e-6, \
                                     verbose=True)

@@ -204,9 +204,9 @@ class CnstOptSchduler(_Scheduler):
 
     def __init__(self, optimizer, steps, inner_scheduler=None, inner_iter=400, object_decrease_tolerance=1e-6, violation_tolerance=1e-6, verbose=False):
         super().__init__(optimizer, steps, verbose)
-        # self.decreasing = decreasing
-        self.scheduler = inner_scheduler
-        # self.optimizer.optim = inner_scheduler.optimizer
+
+        self.schedulers = [inner_scheduler] if inner_scheduler and not isinstance(inner_scheduler, list) \
+                                            else inner_scheduler or []
         self.optimizer.inner_iter = inner_iter
         self.object_decrease_tolerance = object_decrease_tolerance
         self.violation_tolerance = violation_tolerance
@@ -215,8 +215,10 @@ class CnstOptSchduler(_Scheduler):
     def step(self, loss):
         assert self.optimizer.loss is not None, \
             'scheduler.step() should be called after optimizer.step()'
-        if self.scheduler:
-            self.scheduler.step()
+        for scheduler in self.schedulers:
+            scheduler.step()
+        # if self.scheduler:
+        #     self.scheduler.step()
         if self.verbose:
             print('CnstOptSchduler (for objection) on step {} Loss {:.6e} --> Loss {:.6e} '\
                   '(reduction/loss: {:.4e}).'.format(self.steps, self.optimizer.last_object_value,
@@ -234,12 +236,8 @@ class CnstOptSchduler(_Scheduler):
 
         self.steps = self.steps + 1
 
-        # if torch.norm(self.optimizer.last_object_value-self.optimizer.object_value) <= self.object_decrease_tolerance \
-        #             and self.optimizer.violation_norm  <= self.violation_tolerance:
-        #     self._continual = False
-        #     if self.verbose:
-        #         print("CnstOptSchduler: Optimal value found, Quiting..")
-        if self.optimizer.terminate == True:
+        if torch.norm(self.optimizer.last_object_value-self.optimizer.object_value) <= self.object_decrease_tolerance \
+                    and self.optimizer.violation_norm  <= self.violation_tolerance:
             self._continual = False
             if self.verbose:
                 print("CnstOptSchduler: Optimal value found, Quiting..")

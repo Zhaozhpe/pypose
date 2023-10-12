@@ -68,12 +68,11 @@ if __name__ == "__main__":
     inner_schd_x = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_x, step_size=10, gamma=0.5)
     inner_optimizer_z = torch.optim.SGD([admm_model.z], lr=1e-2, momentum=0.9)
     inner_schd_z = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_z, step_size=10, gamma=0.5)
-    optimizer = ADMMOptim(admm_model, inner_optimizer_x, inner_optimizer_z,inner_schd_x,inner_schd_z)
+    optimizer = ADMMOptim(admm_model, inner_optimizer_x, inner_optimizer_z)
 
-    # apply scheduler for ADMM
-    scheduler = CnstOptSchduler(optimizer, steps=100, inner_iter=300, \
-                                    object_decrease_tolerance=1e-6, violation_tolerance=1e-6, \
-                                    verbose=True)
+    scheduler = CnstOptSchduler(optimizer, steps=100, inner_scheduler=[inner_schd_x, inner_schd_z], \
+                                inner_iter=300, object_decrease_tolerance=1e-6, violation_tolerance=1e-6, \
+                                verbose=True)
     while scheduler.continual():
             loss = optimizer.step(input)
             scheduler.step(loss)
