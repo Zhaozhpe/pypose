@@ -3,7 +3,7 @@ from torch import nn
 from .scndopt import _Optimizer
 
 class ADMMOptim(_Optimizer):
-    def __init__(self, model, inner_optimizer_x, inner_optimizer_z, rho=1, tolerance=3e-4,min=1e-6, max=1e32):
+    def __init__(self, model, inner_optimizer_x, inner_optimizer_z, rho=10, tolerance=3e-4,min=1e-6, max=1e32):
         defaults = {**{'min':min, 'max':max}}
         super().__init__(model.parameters(), defaults=defaults)
         self.terminate = False
@@ -11,7 +11,7 @@ class ADMMOptim(_Optimizer):
         self.inner_optimizer_x = inner_optimizer_x
         self.inner_optimizer_z = inner_optimizer_z
         self.rho = rho
-        self.inner_iter = 0
+        self.inner_iter = 300
         self.tolerance = tolerance
 
     def step(self, inputs):
@@ -30,7 +30,7 @@ class ADMMOptim(_Optimizer):
             scalar_loss_x.backward()
             self.inner_optimizer_x.step()
 
-        # self.inner_schd_x.step()
+        #self.inner_schd_x.step()
 
         # z-update step
         for j in range(self.inner_iter):
@@ -40,7 +40,7 @@ class ADMMOptim(_Optimizer):
             scalar_loss_z.backward()
             self.inner_optimizer_z.step()
 
-        # self.inner_schd_z.step()
+        #self.inner_schd_z.step()
         self.loss = loss_x + loss_z
         # fix sgd optimization issue and improve accuracy
         with torch.no_grad():
@@ -67,8 +67,8 @@ class ADMMOptim(_Optimizer):
             z_old = self.model.z.clone()
 
             # Check the results
-        
-            
+
+
             # print('--------------------NEW-ADMM-EPOCH-------------------')
             # print('u:', self.model.u)
             # print('object_loss:', self.object_value)
@@ -77,6 +77,6 @@ class ADMMOptim(_Optimizer):
             # print("z",self.model.z)
 
             ## why best_vlolation
-            self.best_violation = torch.norm(violation)
+            #self.best_violation = torch.norm(violation)
 
         return self.model.obj(inputs), self.model.u,self.violation_norm, dual_residual
