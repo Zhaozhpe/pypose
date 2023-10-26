@@ -8,75 +8,76 @@ from pypose.optim.scheduler import CnstOptSchduler
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# class ADMMModel(nn.Module):
-#     def __init__(self, *dim) -> None:
-#         super().__init__()
-#         # init = torch.randn(*dim)
-#         # self.x = torch.nn.Parameter(init.clone())
-#         # self.z = torch.nn.Parameter(init.clone())
-#         # self.u = torch.zeros_like(init).to(device)
-#         self.x = nn.Parameter(torch.tensor([5.0]))  # Initialize K_p (proportional gain)
-#         self.z = nn.Parameter(torch.tensor([5.0]))  # Initialize K_d (derivative gain)
-#         self.u = torch.tensor([0.0]).to(device)                         #initialization for example 3'''
-
-#     def obj(self, inputs):
-#         # Define your specific objective functions f(x) and g(z)
-#         #result = torch.square(self.x) + torch.square(self.z)                   #example 1 ans x and z 1 and 1
-#         #result = (self.x - 3)**2 + (self.z + 1)**2                             #example 2 ans x and z 3 and -1
-#         #result= torch.exp(self.x)+ torch.log(self.z + 2)
-#         s = 1.0  # A dummy Laplace variable for the sake of this example
-#         y = self.x / (s**2 + self.z * s + self.x)
-#         f_x = torch.abs(0.98 - y)
-#         g_z = y**2
-#         result =f_x+g_z                                                      #example 3 ans x and z 5.0009 and 4.9991
-#         #result =self.x**3 + self.z**3 - self.z**2
-#         return result
-
-#     def cnst(self, inputs):
-#         # Define your specific constraints, Ax + Bz - c
-#         #violation = self.x +self.z- 2                                          #example 1
-#         #violation = self.x +self.z- 2                                          #example 2
-#         violation=self.x + self.z - 10                                         #example 3
-#         #violation=2*self.x + self.z - 2
-#         return violation
-
-#     def forward(self, inputs):
-#         return self.obj(inputs), self.cnst(inputs)
-
-
-class ADMMModelLieAlgebra(nn.Module):
-    def __init__(self, device) -> None:
+class ADMMModel(nn.Module):
+    def __init__(self, *dim) -> None:
         super().__init__()
-        self.device = device
-        self.x = nn.Parameter(torch.tensor([0.5], dtype=torch.float, requires_grad=True).to(device))
-        self.z = nn.Parameter(torch.tensor([0.5], dtype=torch.float, requires_grad=True).to(device))
-        self.u = nn.Parameter(torch.zeros(1).to(device))
+        # init = torch.randn(*dim)
+        # self.x = torch.nn.Parameter(init.clone())
+        # self.z = torch.nn.Parameter(init.clone())
+        # self.u = torch.zeros_like(init).to(device)
+        self.x = nn.Parameter(torch.tensor([5.0]))  # Initialize K_p (proportional gain)
+        self.z = nn.Parameter(torch.tensor([5.0]))  # Initialize K_d (derivative gain)
+        self.u = torch.tensor([0.0]).to(device)                         #initialization for example 3'''
 
     def obj(self, inputs):
-        # Lie Algebra-related objective function
-        J = torch.tensor([[0, -1], [1, 0]], dtype=torch.float).to(self.device)
-        Z = torch.tensor([[0, -self.z], [self.z, 0]], dtype=torch.float).to(self.device)
-        exp_Z = torch.matrix_exp(Z)
-        I = torch.eye(2).to(self.device)
-        return self.x**2 + torch.norm(exp_Z - I, p='fro')**2
+        # Define your specific objective functions f(x) and g(z)
+        #result = torch.square(self.x) + torch.square(self.z)                   #example 1 ans x and z 1 and 1
+        #result = (self.x - 3)**2 + (self.z + 1)**2                             #example 2 ans x and z 3 and -1
+        #result= torch.exp(self.x)+ torch.log(self.z + 2)
+        s = 1.0  # A dummy Laplace variable for the sake of this example
+        y = self.x / (s**2 + self.z * s + self.x)
+        f_x = torch.abs(0.98 - y)
+        g_z = y**2
+        result =f_x+g_z                                                      #example 3 ans x and z 5.0009 and 4.9991
+        #result =self.x**3 + self.z**3 - self.z**2
+        return result
 
     def cnst(self, inputs):
-        # Constraint function
-        return 2*self.x + self.z - 2
+        # Define your specific constraints, Ax + Bz - c
+        #violation = self.x +self.z- 2                                          #example 1
+        #violation = self.x +self.z- 2                                          #example 2
+        violation=self.x + self.z - 10                                         #example 3
+        #violation=2*self.x + self.z - 2
+        return violation
 
     def forward(self, inputs):
         return self.obj(inputs), self.cnst(inputs)
 
 
+# class ADMMModelLieAlgebra(nn.Module):
+#     def __init__(self, device) -> None:
+#         super().__init__()
+#         self.device = device
+#         self.x = nn.Parameter(torch.tensor([0.5], dtype=torch.float, requires_grad=True).to(device))
+#         self.z = nn.Parameter(torch.tensor([0.5], dtype=torch.float, requires_grad=True).to(device))
+#         self.u = nn.Parameter(torch.zeros(1).to(device))
+
+#     def obj(self, inputs):
+#         # Lie Algebra-related objective function
+#         J = torch.tensor([[0, -1], [1, 0]], dtype=torch.float).to(self.device)
+#         Z = torch.tensor([[0, -self.z], [self.z, 0]], dtype=torch.float).to(self.device)
+#         exp_Z = torch.matrix_exp(Z)
+#         I = torch.eye(2).to(self.device)
+#         return self.x**2 + torch.norm(exp_Z - I, p='fro')**2
+
+#     def cnst(self, inputs):
+#         # Constraint function
+#         return 2*self.x + self.z - 2
+
+#     def forward(self, inputs):
+#         return self.obj(inputs), self.cnst(inputs)
+
+
+
 
 if __name__ == "__main__":
     input = None
-    admm_model = ADMMModelLieAlgebra(device).to(device)
+    admm_model = ADMMModel(device).to(device)
     #admm_model = ComplexADMMModel(5, 3).to(device)
     inner_optimizer_x = torch.optim.Adam([admm_model.x], lr=1e-4)
-    inner_schd_x = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_x, step_size=20, gamma=0.5)
+    inner_schd_x = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_x, step_size=10, gamma=0.5)
     inner_optimizer_z = torch.optim.Adam([admm_model.z], lr=1e-4)
-    inner_schd_z = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_z, step_size=20, gamma=0.5)
+    inner_schd_z = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_z, step_size=10, gamma=0.5)
     optimizer = ADMMOptim(admm_model, inner_optimizer_x, inner_optimizer_z)
 
     scheduler = CnstOptSchduler(optimizer, steps=100, inner_scheduler=[inner_schd_x, inner_schd_z], \

@@ -77,6 +77,6 @@ class ADMMOptim(_Optimizer):
             # print("z",self.model.z)
 
             ## why best_vlolation
-            #self.best_violation = torch.norm(violation)
+            self.best_violation = torch.norm(violation)
 
         return self.model.obj(inputs), self.model.u,self.violation_norm, dual_residual
