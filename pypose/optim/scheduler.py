@@ -236,8 +236,8 @@ class CnstOptSchduler(_Scheduler):
 
         self.steps = self.steps + 1
 
-        if torch.norm(self.optimizer.last_object_value-self.optimizer.object_value) <= self.object_decrease_tolerance \
-                    and self.optimizer.violation_norm  <= self.violation_tolerance:
+        if self.optimizer.terminate:#torch.norm(self.optimizer.last_object_value-self.optimizer.object_value) <= self.object_decrease_tolerance \
+                    #and self.optimizer.violation_norm  <= self.violation_tolerance:
             self._continual = False
             if self.verbose:
                 print("CnstOptSchduler: Optimal value found, Quiting..")
