@@ -58,8 +58,8 @@ class ADMMOptim(_Optimizer):
             # scalar_loss_x = loss_x.sum()
             loss_x.backward()
             self.inner_optimizer_x.step()
-            if i % 20 == 0:
-                print("scalar_loss_x",loss_x)
+            # if i % 20 == 0:
+            #     print("scalar_loss_x",loss_x)
 
         #self.inner_schd_x.step()
 
@@ -71,8 +71,8 @@ class ADMMOptim(_Optimizer):
             # scalar_loss_z = loss_z.sum()
             loss_z.backward()
             self.inner_optimizer_z.step()
-            if j % 20 == 0:
-                print("scalar_loss_z",loss_z)
+            # if j % 20 == 0:
+            #     print("scalar_loss_z",loss_z)
 
         #self.inner_schd_z.step()
         # fix sgd optimization issue and improve accuracy
@@ -112,8 +112,8 @@ class ADMMOptim(_Optimizer):
             # print('absolute violation:', violation)
             print("x",self.model.x)
             print("z",self.model.z)
-            print("x.Exp()",self.model.x.Exp())
-            print("z.Exp()",self.model.z.Exp())
+            # print("x.Exp()",self.model.x.Exp())
+            # print("z.Exp()",self.model.z.Exp())
             print("x.euler(:", self.model.x.euler())
             print("z.euler(:", self.model.z.euler())
             print("f_x",g_x)

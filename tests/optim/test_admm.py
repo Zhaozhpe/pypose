@@ -107,8 +107,6 @@ class PoseInvCnstAdmm(nn.Module):
         self.current_pose = pp.SO3(pp.euler2SO3(np.array([[0.0, 0.0, np.pi/2]])).to(torch.float)).to(device)
         # print("current_pose", self.current_pose)
 
-
-
     def obj(self, inputs):
 
         g_x = torch.norm((self.x.Exp() @ inputs).Log())
@@ -116,11 +114,11 @@ class PoseInvCnstAdmm(nn.Module):
         result = g_x + h_z
 
         return result
+
     def obj_all(self, inputs):
 
         g_x = torch.norm((self.x.Exp() @ inputs).Log())
         h_z = torch.norm((self.z.Exp() @ self.current_pose).Log())
-        # result = g_x + h_z
 
         return g_x, h_z
 
@@ -185,14 +183,14 @@ if __name__ == "__main__":
     quaternion = pp.euler2SO3(euler_angles).to(torch.float)
     input = pp.SO3(quaternion).to(device)
     admm_model = PoseInvCnstAdmm(1).to(device)
-    inner_optimizer_x = torch.optim.Adam([admm_model.x], lr=5e-3)
+    inner_optimizer_x = torch.optim.Adam([admm_model.x], lr=1e-2)
     inner_schd_x = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_x, step_size=10, gamma=0.5)
-    inner_optimizer_z = torch.optim.Adam([admm_model.z], lr=5e-3)
+    inner_optimizer_z = torch.optim.Adam([admm_model.z], lr=1e-2)
     inner_schd_z = torch.optim.lr_scheduler.StepLR(optimizer=inner_optimizer_z, step_size=10, gamma=0.5)
     optimizer = ADMMOptim(admm_model, inner_optimizer_x, inner_optimizer_z)
 
     scheduler = CnstOptSchduler(optimizer, steps=100, inner_scheduler=[inner_schd_x, inner_schd_z], \
-                                inner_iter=300, object_decrease_tolerance=1e-5, violation_tolerance=1e-5, \
+                                inner_iter=30, object_decrease_tolerance=1e-5, violation_tolerance=1e-5, \
                                 verbose=True)
     while scheduler.continual():
             loss = optimizer.step(input)
