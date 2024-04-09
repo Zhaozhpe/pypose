@@ -44,7 +44,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #         return violation
 
 #     def forward(self, inputs):
-#         return self.obj(inputs), self.cnst(inputs)
+        # self.fx=torch.square(self.x)
+        # self.gx=torch.square(self.z)
+#         return self.fx,self.gx,self.obj(inputs), self.cnst(inputs)
 
 
 # class ADMMModelLieAlgebra(nn.Module):
