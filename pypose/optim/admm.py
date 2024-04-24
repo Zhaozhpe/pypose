@@ -85,7 +85,7 @@ class ADMMOptim(_Optimizer):
             self.object_value = object_value
             self.violation_norm = torch.norm(violation)
             g_x, h_z = self.model.obj_all(inputs)
-            
+
 
             # primal_residual = torch.norm(violation)
             dual_residual = self.rho * torch.norm(self.model.z - z_old)
@@ -114,8 +114,8 @@ class ADMMOptim(_Optimizer):
             print("z",self.model.z)
             # print("x.Exp()",self.model.x.Exp())
             # print("z.Exp()",self.model.z.Exp())
-            print("x.euler(:", self.model.x.euler())
-            print("z.euler(:", self.model.z.euler())
+            # print("x.euler(:", self.model.x.euler())
+            # print("z.euler(:", self.model.z.euler())
             print("f_x",g_x)
             print("g_z",h_z)
 
